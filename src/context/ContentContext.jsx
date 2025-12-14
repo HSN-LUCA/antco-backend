@@ -361,7 +361,7 @@ export const ContentProvider = ({ children }) => {
     return localStorage.getItem('isAdmin') === 'true';
   });
 
-  // Load content from API on mount
+  // Load content from API on mount and poll for updates
   useEffect(() => {
     const loadInitialContent = async () => {
       try {
@@ -402,6 +402,21 @@ export const ContentProvider = ({ children }) => {
     };
 
     loadInitialContent();
+
+    // Poll for updates every 10 seconds
+    const interval = setInterval(async () => {
+      try {
+        const apiContent = await loadContent();
+        if (apiContent) {
+          setContent(apiContent);
+          localStorage.setItem('siteContent', JSON.stringify(apiContent));
+        }
+      } catch (err) {
+        console.error("Polling error:", err);
+      }
+    }, 10000);
+
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
