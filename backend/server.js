@@ -63,14 +63,21 @@ app.post('/api/content', async (req, res) => {
   try {
     const { content } = req.body;
     
+    if (!content) {
+      return res.status(400).json({ error: 'No content provided' });
+    }
+    
+    console.log('Saving content to database...');
+    
     // Delete old content and insert new
     await pool.query('DELETE FROM website_content');
-    await pool.query('INSERT INTO website_content (content) VALUES ($1)', [JSON.stringify(content)]);
+    const result = await pool.query('INSERT INTO website_content (content) VALUES ($1) RETURNING id', [JSON.stringify(content)]);
     
-    res.json({ success: true, message: 'Content saved successfully' });
+    console.log('Content saved successfully, ID:', result.rows[0].id);
+    res.json({ success: true, message: 'Content saved successfully', id: result.rows[0].id });
   } catch (err) {
     console.error('Error saving content:', err);
-    res.status(500).json({ error: 'Failed to save content' });
+    res.status(500).json({ error: 'Failed to save content', details: err.message });
   }
 });
 
