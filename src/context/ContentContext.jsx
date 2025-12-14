@@ -365,17 +365,19 @@ export const ContentProvider = ({ children }) => {
   useEffect(() => {
     const loadInitialContent = async () => {
       try {
-        // Try API first
+        console.log('Loading content from API...');
         const apiContent = await loadContent();
         if (apiContent) {
+          console.log('Loaded from API successfully');
           setContent(apiContent);
           localStorage.setItem('siteContent', JSON.stringify(apiContent));
           return;
         }
       } catch (err) {
-        console.error("API load failed, falling back to localStorage:", err);
+        console.error("API load failed:", err);
       }
 
+      console.log('Falling back to localStorage');
       // Fallback to localStorage
       const savedContent = localStorage.getItem('siteContent');
       if (savedContent) {
@@ -403,7 +405,7 @@ export const ContentProvider = ({ children }) => {
 
     loadInitialContent();
 
-    // Poll for updates every 10 seconds
+    // Poll for updates every 30 seconds (less frequent to avoid constant saves)
     const interval = setInterval(async () => {
       try {
         const apiContent = await loadContent();
@@ -412,12 +414,12 @@ export const ContentProvider = ({ children }) => {
           localStorage.setItem('siteContent', JSON.stringify(apiContent));
         }
       } catch (err) {
-        console.error("Polling error:", err);
+        // Silent error for polling
       }
-    }, 10000);
+    }, 30000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [])
 
   useEffect(() => {
     localStorage.setItem('siteContent', JSON.stringify(content));
