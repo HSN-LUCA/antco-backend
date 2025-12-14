@@ -1,8 +1,10 @@
 // API endpoint - change this to your backend URL
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.VITE_API_URL || 'https://antco-api.onrender.com/api';
 
 export const saveContent = async (content) => {
   try {
+    console.log('Attempting to save content to API:', API_URL);
+    
     const response = await fetch(`${API_URL}/content`, {
       method: 'POST',
       headers: {
@@ -11,10 +13,14 @@ export const saveContent = async (content) => {
       body: JSON.stringify({ content }),
     });
 
+    const data = await response.json();
+    
     if (!response.ok) {
-      throw new Error('Failed to save content');
+      console.error('API error response:', data);
+      throw new Error(data.error || 'Failed to save content');
     }
 
+    console.log('Content saved successfully:', data);
     return true;
   } catch (error) {
     console.error('Error saving content:', error);
