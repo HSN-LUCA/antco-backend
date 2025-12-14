@@ -71,12 +71,18 @@ app.post('/api/content', async (req, res) => {
     }
     
     console.log('Saving content to database...');
+    const contentString = JSON.stringify(content);
+    console.log('Content size:', contentString.length, 'bytes');
     
     // Delete old content and insert new
     await pool.query('DELETE FROM website_content');
-    const result = await pool.query('INSERT INTO website_content (content) VALUES ($1) RETURNING id', [JSON.stringify(content)]);
+    const result = await pool.query(
+      'INSERT INTO website_content (content) VALUES ($1::jsonb) RETURNING id, content',
+      [contentString]
+    );
     
     console.log('Content saved successfully, ID:', result.rows[0].id);
+    console.log('Saved content preview:', JSON.stringify(result.rows[0].content).substring(0, 100));
     res.json({ success: true, message: 'Content saved successfully', id: result.rows[0].id });
   } catch (err) {
     console.error('Error saving content:', err);
