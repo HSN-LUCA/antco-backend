@@ -10,7 +10,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ['https://antco.com', 'http://localhost:3000', 'http://localhost:5173'],
+  origin: ['https://antco.ae', 'https://www.antco.ae', 'http://localhost:3000', 'http://localhost:5173'],
   credentials: true
 }));
 app.use(express.json());
