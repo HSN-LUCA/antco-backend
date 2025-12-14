@@ -48,7 +48,10 @@ app.get('/api/content', async (req, res) => {
   try {
     const result = await pool.query('SELECT content FROM website_content ORDER BY updated_at DESC LIMIT 1');
     if (result.rows.length > 0) {
-      res.json(result.rows[0].content);
+      const content = result.rows[0].content;
+      // If content is a string, parse it; if it's already an object, return as is
+      const parsedContent = typeof content === 'string' ? JSON.parse(content) : content;
+      res.json(parsedContent);
     } else {
       res.json(null);
     }
